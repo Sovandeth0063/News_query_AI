@@ -1,0 +1,175 @@
+# News & Research Sources Configuration
+
+sources:
+  # --- AI & Machine Learning Priority Sources ---
+  - id: venturebeat_ai
+    name: VentureBeat AI
+    feed_url: https://venturebeat.com/category/ai/feed/
+    kind: rss
+    category_hint: AI_LLM
+    authority: 1.2
+    enabled: true
+
+  - id: huggingface_blog
+    name: Hugging Face Blog
+    feed_url: https://huggingface.co/blog/feed.xml
+    kind: rss
+    category_hint: AI_LLM
+    authority: 1.3
+    enabled: true
+
+  - id: towards_data_science
+    name: Towards Data Science
+    feed_url: https://towardsdatascience.com/feed
+    kind: rss
+    category_hint: DATA_SCIENCE_ML
+    authority: 1.1
+    enabled: true
+
+  - id: kdnuggets
+    name: KDnuggets
+    feed_url: https://www.kdnuggets.com/feed
+    kind: rss
+    category_hint: DATA_SCIENCE_ML
+    authority: 1.0
+    enabled: true
+
+  - id: openai_blog
+    name: OpenAI News
+    feed_url: https://openai.com/news/rss.xml
+    kind: rss
+    category_hint: AI_LLM
+    authority: 1.3
+    enabled: true
+
+  - id: deepmind_blog
+    name: Google DeepMind
+    feed_url: https://deepmind.google/blog/rss.xml
+    kind: rss
+    category_hint: AI_LLM
+    authority: 1.3
+    enabled: true
+
+  - id: mit_tech_review_ai
+    name: MIT Technology Review - AI
+    feed_url: https://www.technologyreview.com/topic/artificial-intelligence/feed/
+    kind: rss
+    category_hint: AI_LLM
+    authority: 1.2
+    enabled: true
+
+  - id: the_gradient
+    name: The Gradient
+    feed_url: https://thegradient.pub/rss/
+    kind: rss
+    category_hint: AI_RESEARCH
+    authority: 1.1
+    enabled: true
+
+  # --- General Tech Sources ---
+  - id: techcrunch
+    name: TechCrunch
+    feed_url: https://techcrunch.com/feed/
+    kind: rss
+    category_hint: TECH_GENERAL
+    authority: 1.0
+    enabled: true
+
+  - id: ars_technica
+    name: Ars Technica
+    feed_url: https://feeds.arstechnica.com/arstechnica/index
+    kind: rss
+    category_hint: TECH_GENERAL
+    authority: 1.1
+    enabled: true
+
+  - id: the_verge
+    name: The Verge
+    feed_url: https://www.theverge.com/rss/index.xml
+    kind: rss
+    category_hint: TECH_GENERAL
+    authority: 1.0
+    enabled: true
+
+  # --- Academic / arXiv Research (Kept in Papers tab) ---
+  - id: arxiv_cs_ai
+    name: arXiv Artificial Intelligence (cs.AI)
+    feed_url: cs.AI
+    kind: arxiv
+    category_hint: AI_RESEARCH
+    authority: 1.2
+    enabled: true
+
+  - id: arxiv_cs_lg
+    name: arXiv Machine Learning (cs.LG)
+    feed_url: cs.LG
+    kind: arxiv
+    category_hint: AI_RESEARCH
+    authority: 1.2
+    enabled: true
+
+  - id: arxiv_cs_cl
+    name: arXiv Computation and Language (cs.CL)
+    feed_url: cs.CL
+    kind: arxiv
+    category_hint: AI_RESEARCH
+    authority: 1.2
+    enabled: true
+
+  # --- Discovery & Model Radar Sources (Candidate Seeds, Verified Before Enabling) ---
+  - id: hn_new_models
+    name: Hacker News - Model Launches
+    kind: hn_algolia
+    query: "AI model"
+    min_points: 10
+    lookback_hours: 72
+    source_type: community
+    category_hint: AI_LLM
+    authority: 1.2
+    enabled: true
+
+  - id: gnews_model_launches
+    name: Google News - Model Launches
+    kind: google_news_rss
+    query: "new AI model launch OR releases AI model OR emerges from stealth AI"
+    source_type: aggregator
+    category_hint: AI_LLM
+    authority: 1.0
+    enabled: true
+
+  - id: gnews_model_updates
+    name: Google News - Model Updates
+    kind: google_news_rss
+    query: "AI model update OR benchmark results OR open-weight model released"
+    source_type: aggregator
+    category_hint: AI_LLM
+    authority: 1.0
+    enabled: true
+
+  - id: reddit_localllama
+    name: Reddit - LocalLLaMA
+    kind: reddit_rss
+    feed_url: https://www.reddit.com/r/LocalLLaMA/.rss
+    source_type: community
+    category_hint: AI_LLM
+    authority: 1.1
+    enabled: true
+
+  - id: reddit_machinelearning
+    name: Reddit - Machine Learning
+    kind: reddit_rss
+    feed_url: https://www.reddit.com/r/MachineLearning/.rss
+    source_type: community
+    category_hint: DATA_SCIENCE_ML
+    authority: 1.1
+    enabled: false
+
+  - id: devto_ai
+    name: DEV Community - AI
+    kind: rss
+    feed_url: https://dev.to/feed/tag/ai
+    source_type: analysis
+    category_hint: AI_LLM
+    authority: 1.0
+    enabled: true
+

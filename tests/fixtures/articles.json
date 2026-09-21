@@ -1,0 +1,26 @@
+{
+  "articles": [
+    {
+      "id": "art_fixture_001",
+      "source_id": "src_fixture_alpha",
+      "source_name": "TechPulse Wire",
+      "url": "https://example.com/aetheriax-launch",
+      "title": "OmniNova Labs unveils AetheriaX-70B reasoning model with open weights",
+      "summary": "OmniNova Labs has officially announced the launch of AetheriaX-70B, a high-efficiency open-weights reasoning model designed for mathematical deduction.",
+      "body": "OmniNova Labs announced AetheriaX-70B today under an open license. The model shows competitive performance against proprietary frontier systems in logic benchmarks.",
+      "category": "AI_LLM",
+      "published_at_utc": "2026-09-21T02:00:00Z"
+    },
+    {
+      "id": "art_fixture_002",
+      "source_id": "src_fixture_beta",
+      "source_name": "Deep Learning Weekly",
+      "url": "https://example.com/aetheriax-benchmarks",
+      "title": "Independent benchmarks confirm AetheriaX-70B performance across coding tasks",
+      "summary": "Independent evaluations of AetheriaX-70B released by OmniNova Labs reveal substantial throughput improvements.",
+      "body": "Evaluations for AetheriaX-70B confirm remarkable reasoning benchmarks. OmniNova Labs designed the architecture with optimized attention kernels.",
+      "category": "AI_LLM",
+      "published_at_utc": "2026-09-21T04:00:00Z"
+    }
+  ]
+}

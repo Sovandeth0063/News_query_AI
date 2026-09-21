@@ -1,0 +1,49 @@
+# Generic entity stoplist (lower-case, one per line)
+# These terms must never become registered entities
+ai
+llm
+llms
+model
+models
+the model
+the company
+system
+systems
+algorithm
+algorithms
+data
+machine learning
+deep learning
+artificial intelligence
+technology
+tech
+neural network
+neural networks
+paper
+papers
+research
+researchers
+author
+authors
+product
+products
+tool
+tools
+feature
+features
+update
+updates
+release
+releases
+benchmark
+benchmarks
+software
+hardware
+platform
+platforms
+startup
+startups
+company
+companies
+organization
+organizations
