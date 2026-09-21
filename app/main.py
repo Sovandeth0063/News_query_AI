@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 
@@ -42,9 +42,24 @@ app.include_router(api_router)
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
+@app.get("/favicon.ico", include_in_schema=False)
+def serve_favicon():
+    favicon_ico = STATIC_DIR / "favicon.ico"
+    if favicon_ico.exists():
+        return FileResponse(favicon_ico, media_type="image/x-icon")
+    favicon_svg = STATIC_DIR / "favicon.svg"
+    if favicon_svg.exists():
+        return FileResponse(favicon_svg, media_type="image/svg+xml")
+    return Response(status_code=204)
+
+@app.get("/.well-known/appspecific/com.chrome.devtools.json", include_in_schema=False)
+def chrome_devtools_probe():
+    return Response(content="{}", media_type="application/json")
+
 @app.get("/")
 def serve_index():
     index_file = STATIC_DIR / "index.html"
     if index_file.exists():
         return FileResponse(index_file)
     return {"message": "AI & Tech News Engine running. UI assets under preparation."}
+

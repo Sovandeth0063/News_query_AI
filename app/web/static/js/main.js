@@ -15,6 +15,8 @@ import { initReaderModal } from './modal.js';
 import { initSidebar, loadSidebarData } from './sidebar.js';
 import { initRadar, loadRadarFeed } from './radar.js';
 
+import { api } from './api.js';
+
 document.addEventListener('DOMContentLoaded', () => {
   // 1. Initialize Theme (syncs toggle button, listens to OS)
   initTheme();
@@ -29,6 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // 3. Initialize Feed & Dynamic Sidebar
   initFeed();
   initSidebar();
+
+  // Initialize Radar badge count on startup
+  api.getRadar({ days: 7 }).then(res => {
+    const badge = document.getElementById('radarCountBadge');
+    if (badge && res.items && res.items.length > 0) {
+      badge.textContent = `${res.items.length} New`;
+    }
+  }).catch(() => {});
 
   // 4. Initialize Tabs with Lazy-loading for non-default tabs
   initTabs((tabId, panelId) => {

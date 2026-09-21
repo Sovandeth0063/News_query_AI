@@ -14,10 +14,12 @@ export const mockArticles = [
     published_at_utc: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
     score_cached: 48.5,
     cluster_id: "cls_01",
-    cluster_size: 4,
+    cluster_size: 5,
     is_read: 0,
     is_bookmarked: 1,
-    tags: ["LLM", "DeepSeek", "Attention", "MoE"]
+    tags: ["LLM", "DeepSeek", "Attention", "MoE"],
+    takeaway: "Multi-head Latent Attention compresses KV cache while DeepSeekMoE balances expert routing without auxiliary loss.",
+    body: "DeepSeek-V3 introduces architectural innovations that dramatically lower training and inference costs.\n\nBy projecting Key-Value states into compressed latent vectors, MLA minimizes memory footprint during long-context generation.\n\nIn real-world deployment, inference throughput increases by over 3x while matching frontier reasoning capabilities."
   },
   {
     id: "art_mock_02",
@@ -33,7 +35,8 @@ export const mockArticles = [
     cluster_size: 1,
     is_read: 0,
     is_bookmarked: 0,
-    tags: ["RAG", "Data Science", "Evaluation", "MLOps"]
+    tags: [],
+    takeaway: null
   },
   {
     id: "art_mock_03",
@@ -46,7 +49,7 @@ export const mockArticles = [
     published_at_utc: new Date(Date.now() - 260 * 60 * 1000).toISOString(),
     score_cached: 39.8,
     cluster_id: "cls_01",
-    cluster_size: 4,
+    cluster_size: 5,
     is_read: 1,
     is_bookmarked: 0,
     tags: ["Open Source", "Benchmarks", "Coding"]
@@ -61,11 +64,43 @@ export const mockArticles = [
     category: "TECH_GENERAL",
     published_at_utc: new Date(Date.now() - 520 * 60 * 1000).toISOString(),
     score_cached: 33.2,
-    cluster_id: null,
-    cluster_size: 1,
+    cluster_id: "cls_01",
+    cluster_size: 5,
     is_read: 0,
     is_bookmarked: 0,
     tags: ["Hardware", "Semiconductors", "HBM4"]
+  },
+  {
+    id: "art_mock_05",
+    source_id: "src_theverge",
+    source_name: "The Verge",
+    url: "https://theverge.com/2026/09/20/deepseek-v3-release",
+    title: "DeepSeek-V3 Open Model Release Shakes Up Generative AI Market",
+    summary: "The open release of DeepSeek-V3 prompts industry response.",
+    category: "AI_LLM",
+    published_at_utc: new Date(Date.now() - 300 * 60 * 1000).toISOString(),
+    score_cached: 31.0,
+    cluster_id: "cls_01",
+    cluster_size: 5,
+    is_read: 0,
+    is_bookmarked: 0,
+    tags: ["DeepSeek", "Industry"]
+  },
+  {
+    id: "art_mock_06",
+    source_id: "src_venturebeat",
+    source_name: "VentureBeat",
+    url: "https://venturebeat.com/ai/deepseek-moe-architecture",
+    title: "How DeepSeekMoE Changes Distributed AI Training Economics",
+    summary: "Cost analysis of mixture-of-experts training at scale.",
+    category: "AI_LLM",
+    published_at_utc: new Date(Date.now() - 320 * 60 * 1000).toISOString(),
+    score_cached: 29.5,
+    cluster_id: "cls_01",
+    cluster_size: 5,
+    is_read: 0,
+    is_bookmarked: 0,
+    tags: ["MoE", "Compute"]
   }
 ];
 

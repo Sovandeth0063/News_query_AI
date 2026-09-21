@@ -23,6 +23,10 @@
   <script src="/static/vendor/marked.min.js"></script>
   <script src="/static/vendor/purify.min.js"></script>
 
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="alternate icon" href="/favicon.ico">
+
   <!-- Stylesheet -->
   <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -366,66 +370,80 @@
     </div>
   </div>
 
-  <!-- ── In-App Reader Modal (Snippet preview only) ────────────────────── -->
+  <!-- ── In-App Reader Modal ─────────────────────────────────────────── -->
   <div id="readerModalBackdrop" class="modal-backdrop" style="display: none;" aria-hidden="true">
     <div class="reader-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="readerTitle">
+
+      <!-- Sticky Header -->
       <div class="modal-header">
         <div class="reader-meta-row">
           <span id="readerCategory" class="badge badge-tech">TECH</span>
           <span id="readerSource" class="source-name">Source</span>
-          <span id="readerDate" class="time-ago">Time</span>
+          <span class="meta-separator" aria-hidden="true">·</span>
+          <span id="readerDate" class="time-ago" title="">Time</span>
         </div>
-        <button id="readerCloseBtn" class="btn-icon" aria-label="Close story preview">✕</button>
+        <div class="reader-header-actions">
+          <button id="readerBookmarkBtn" class="btn-icon reader-bookmark-btn" aria-label="Save article" aria-pressed="false" title="Save article">
+            <span class="bookmark-star" aria-hidden="true">☆</span>
+          </button>
+          <button id="readerCloseBtn" class="btn-icon reader-close-btn" aria-label="Close story preview" title="Close dialog">✕</button>
+        </div>
       </div>
+
+      <!-- Scrollable Body -->
       <div class="modal-body">
+
+        <!-- 1. Title -->
         <h2 id="readerTitle" class="reader-title">Title</h2>
 
-        <!-- Key Takeaway Highlight Box -->
-        <div id="readerTakeawayContainer" class="reader-takeaway-container">
+        <!-- 2. Key Takeaway -->
+        <div id="readerTakeawayContainer" class="reader-takeaway-container" hidden>
           <div class="reader-takeaway-header">
-            <span class="takeaway-badge-icon">💡</span>
-            <span class="takeaway-badge-label">Key Takeaway</span>
+            <span class="takeaway-badge-label">KEY TAKEAWAY</span>
+            <span class="takeaway-ai-note">AI-generated</span>
           </div>
           <p id="readerTakeaway" class="reader-takeaway-content"></p>
         </div>
 
-        <!-- Article Summary Section -->
-        <div class="reader-summary-section">
-          <h4 class="reader-section-heading">
-            <span class="reader-heading-icon">📰</span>
-            <span>Article Summary</span>
-          </h4>
-          <p id="readerSummary" class="reader-summary-lead">Summary snippet</p>
+        <!-- 3. Tags -->
+        <div id="readerTags" class="reader-tags-box" hidden></div>
+
+        <!-- 4. Summary (clamped with toggle) -->
+        <div id="readerSummarySection" class="reader-summary-section" hidden>
+          <div class="reader-summary-wrap">
+            <p id="readerSummary" class="reader-summary-lead clamped"></p>
+            <button id="readerSummaryToggle" class="reader-summary-toggle" hidden aria-expanded="false">Show more ▾</button>
+          </div>
         </div>
 
-        <!-- Full Extracted Article Text (Collapsible) -->
-        <div id="readerFullBodyContainer" class="reader-full-body-container" style="display: none;">
+        <!-- 5. Coverage by other sources (siblings) -->
+        <div id="readerSiblingsBox" class="reader-siblings-box" hidden>
+          <span class="reader-siblings-label">Also covered by</span>
+          <div id="readerSiblingsList" class="reader-siblings-list"></div>
+        </div>
+
+        <!-- 6. Full Extracted Article Body (collapsible accordion) -->
+        <div id="readerFullBodyContainer" class="reader-full-body-container" hidden>
           <details id="readerFullBodyDetails" class="reader-full-body-details">
-            <summary class="reader-full-body-toggle">
-              <span class="toggle-icon">📄</span>
-              <span id="readerFullBodyToggleText">Read Full Ingested Text</span>
+            <summary id="readerFullBodySummary" class="reader-full-body-summary" aria-expanded="false">
+              <span id="readerFullBodyToggleText" class="reader-full-body-label">Extracted text</span>
+              <span class="full-body-chevron" aria-hidden="true">▾</span>
             </summary>
             <div id="readerFullBodyText" class="reader-full-body-text"></div>
           </details>
         </div>
-        
-        <div id="readerTags" class="reader-tags-box"></div>
 
-        <div id="readerSiblingsBox" class="reader-siblings-box" style="display: none;">
-          <h5>Also covered by other sources</h5>
-          <ul id="readerSiblingsList" class="reader-siblings-list"></ul>
-        </div>
-      </div>
+      </div><!-- /modal-body -->
+
+      <!-- Sticky Footer -->
       <div class="modal-footer">
-        <button id="readerBookmarkBtn" class="btn btn-secondary">
-          ☆ Save
-        </button>
-        <a id="readerOpenOriginalBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
-          Open Original Article ↗
+        <a id="readerOpenOriginalBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-open-original">
+          Open original article ↗
         </a>
       </div>
-    </div>
-  </div>
+
+    </div><!-- /reader-modal-dialog -->
+  </div><!-- /readerModalBackdrop -->
 
   <!-- ── Entity Chronological Timeline Modal (Section 8.2) ──────────────── -->
   <div id="entityTimelineModal" class="modal-backdrop" style="display: none;" aria-hidden="true">

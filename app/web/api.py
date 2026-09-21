@@ -302,7 +302,7 @@ def get_entity_timeline_endpoint(entity_id: int):
     return {"entity": ent, "timeline": timeline, "count": len(timeline)}
 
 @router.post("/radar/reprocess")
-def reprocess_radar(days: int = Query(7, ge=1, le=30)):
+def reprocess_radar(days: int = Query(7, ge=1, le=90)):
     """
     POST /api/radar/reprocess: Re-run extraction for articles in window.
     """

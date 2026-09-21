@@ -240,28 +240,41 @@ function renderCard(a) {
 // In-App Article Reader Modal
 async function openReader(articleId) {
   activeArticleId = articleId;
-  const backdrop = document.getElementById('readerBackdrop');
-  const modal = backdrop.querySelector('.reader-modal');
+  const backdrop = document.getElementById('readerModalBackdrop') || document.getElementById('readerBackdrop');
+  if (!backdrop) return;
 
   // Find article in local cache
   const localArt = allArticles.find(a => a.id === articleId) || papers.find(a => a.id === articleId) || {};
 
-  document.getElementById('readerTitle').textContent = localArt.title || 'Loading...';
-  document.getElementById('readerSource').textContent = localArt.source_name || 'Source';
-  document.getElementById('readerDate').textContent = formatTimeAgo(localArt.published_at_utc);
-  document.getElementById('readerCategory').textContent = localArt.category || 'Tech';
-  document.getElementById('readerSummaryText').textContent = localArt.summary || '';
-  document.getElementById('readerExternalLink').href = localArt.url || '#';
-  document.getElementById('readerBookmarkBtn').textContent = localArt.is_bookmarked ? '★' : '☆';
+  const titleEl = document.getElementById('readerTitle');
+  if (titleEl) titleEl.textContent = localArt.title || 'Loading...';
+  const sourceEl = document.getElementById('readerSource');
+  if (sourceEl) sourceEl.textContent = localArt.source_name || 'Source';
+  const dateEl = document.getElementById('readerDate');
+  if (dateEl) dateEl.textContent = formatTimeAgo(localArt.published_at_utc);
+  const catEl = document.getElementById('readerCategory');
+  if (catEl) catEl.textContent = localArt.category || 'Tech';
+  const sumEl = document.getElementById('readerSummary') || document.getElementById('readerSummaryText');
+  if (sumEl) sumEl.textContent = localArt.summary || '';
+  const origBtn = document.getElementById('readerOpenOriginalBtn') || document.getElementById('readerExternalLink');
+  if (origBtn) origBtn.href = localArt.url || '#';
+  const bkmkBtn = document.getElementById('readerBookmarkBtn');
+  if (bkmkBtn) {
+    bkmkBtn.setAttribute('aria-pressed', localArt.is_bookmarked ? 'true' : 'false');
+    const star = bkmkBtn.querySelector('.bookmark-star');
+    if (star) star.textContent = localArt.is_bookmarked ? '★' : '☆';
+  }
 
   // Clear previous body/tags/siblings
-  document.getElementById('readerBody').innerHTML = '<div class="spinner" style="margin: 2rem auto;"></div>';
-  document.getElementById('readerTags').innerHTML = '';
-  document.getElementById('readerSiblings').style.display = 'none';
-  document.getElementById('readerSiblingsList').innerHTML = '';
+  const bodyElem = document.getElementById('readerFullBodyText') || document.getElementById('readerBody');
+  if (bodyElem) bodyElem.innerHTML = '';
+  const tagsContainer = document.getElementById('readerTags');
+  if (tagsContainer) tagsContainer.innerHTML = '';
+  const sibBox = document.getElementById('readerSiblingsBox') || document.getElementById('readerSiblings');
+  if (sibBox) sibBox.style.display = 'none';
 
   backdrop.style.display = 'flex';
-  document.body.style.overflow = 'hidden'; // prevent page scrolling
+  document.body.style.overflow = 'hidden';
 
   // Mark as read locally and in backend
   markArticleAsRead(articleId);
@@ -274,59 +287,56 @@ async function openReader(articleId) {
     const art = data.article;
     const siblings = data.siblings || [];
 
-    document.getElementById('readerTitle').textContent = art.title;
-    document.getElementById('readerSource').textContent = art.source_name || 'Source';
-    document.getElementById('readerDate').textContent = formatTimeAgo(art.published_at_utc);
-    document.getElementById('readerSummaryText').textContent = art.summary || '';
-    document.getElementById('readerExternalLink').href = art.url;
+    if (titleEl) titleEl.textContent = art.title;
+    if (sourceEl) sourceEl.textContent = art.source_name || 'Source';
+    if (dateEl) dateEl.textContent = formatTimeAgo(art.published_at_utc);
+    if (sumEl) sumEl.textContent = art.summary || '';
+    if (origBtn) origBtn.href = art.url;
 
     // Render tags
-    const tagsContainer = document.getElementById('readerTags');
-    if (art.tags && art.tags.length > 0) {
-      tagsContainer.innerHTML = art.tags.map(t => `<span class="reader-tag-chip">#${escapeHtml(t)}</span>`).join('');
+    if (tagsContainer && art.tags && art.tags.length > 0) {
+      tagsContainer.innerHTML = art.tags.map(t => `<span class="reader-tag">#${escapeHtml(t)}</span>`).join('');
     }
 
     // Render Body
-    const bodyElem = document.getElementById('readerBody');
-    if (art.body && art.body.trim()) {
-      // Split into paragraphs for nice typography
-      const paragraphs = art.body.split(/\n{2,}|\n/).filter(p => p.trim().length > 0);
-      bodyElem.innerHTML = paragraphs.map(p => `<p style="margin-bottom: 1.15rem;">${escapeHtml(p)}</p>`).join('');
-    } else {
-      bodyElem.innerHTML = `
-        <p style="color: var(--text-muted); font-style: italic;">
-          Full extracted text not available for this article preview. 
-          <a href="${art.url}" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary-hover);">Read the complete story on ${escapeHtml(art.source_name || 'the original site')} ↗</a>
-        </p>
-      `;
+    if (bodyElem) {
+      if (art.body && art.body.trim()) {
+        const paragraphs = art.body.split(/\n{2,}|\n/).filter(p => p.trim().length > 0);
+        bodyElem.innerHTML = paragraphs.map(p => `<p style="margin-bottom: 1rem;">${escapeHtml(p)}</p>`).join('');
+      } else {
+        bodyElem.innerHTML = `
+          <p style="color: var(--text-muted); font-style: italic;">
+            Full extracted text not available for this article preview. 
+            <a href="${art.url}" target="_blank" rel="noopener noreferrer">Read the complete story ↗</a>
+          </p>
+        `;
+      }
     }
 
     // Render Siblings
-    if (siblings.length > 0) {
-      const sibBox = document.getElementById('readerSiblings');
+    if (siblings.length > 0 && sibBox) {
       const sibList = document.getElementById('readerSiblingsList');
-      sibBox.style.display = 'block';
-      sibList.innerHTML = siblings.map(s => `
-        <li>
-          <a href="${s.url}" target="_blank" rel="noopener noreferrer">
-            ${escapeHtml(s.title)} <span style="color: var(--text-muted); font-size: 0.8rem;">(${escapeHtml(s.source_name || 'Source')}) ↗</span>
+      sibBox.style.display = '';
+      if (sibList) {
+        sibList.innerHTML = siblings.map(s => `
+          <a href="${s.url}" target="_blank" rel="noopener noreferrer" class="sibling-chip">
+            ${escapeHtml(s.source_name || 'Source')} ↗
           </a>
-        </li>
-      `).join('');
+        `).join('');
+      }
     }
 
   } catch (err) {
-    document.getElementById('readerBody').innerHTML = `
-      <p style="color: #ef4444;">Notice: ${escapeHtml(err.message)}.</p>
-      <p><a href="${localArt.url}" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary-hover);">Open source article directly ↗</a></p>
-    `;
+    if (bodyElem) {
+      bodyElem.innerHTML = `<p style="color: #ef4444;">Notice: ${escapeHtml(err.message)}.</p>`;
+    }
   }
 }
 
 function closeReader(event) {
   if (event && event.target !== event.currentTarget) return;
-  const backdrop = document.getElementById('readerBackdrop');
-  backdrop.style.display = 'none';
+  const backdrop = document.getElementById('readerModalBackdrop') || document.getElementById('readerBackdrop');
+  if (backdrop) backdrop.style.display = 'none';
   document.body.style.overflow = '';
   activeArticleId = null;
 }

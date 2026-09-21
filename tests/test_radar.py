@@ -176,9 +176,9 @@ def test_emerging_logic_pure_function():
 # Test 6: Citation cleanup: uncited sources stripped, invalid [n] removed, duplicates collapsed
 def test_citation_cleanup():
     sources = [
-        {"title": "Source 1", "url": "https://example.com/1"},
-        {"title": "Source 2", "url": "https://example.com/2"},
-        {"title": "Source 3", "url": "https://example.com/3"}
+        {"title": "Source 1", "url": "https://news.ycombinator.com/item?id=1"},
+        {"title": "Source 2", "url": "https://techcrunch.com/article/2"},
+        {"title": "Source 3", "url": "https://arxiv.org/abs/3"}
     ]
     answer = "This model was released recently [1] with high throughput [3]. Note invalid [99]."
     cleaned_answer, cleaned_sources = sanitize_and_deduplicate_citations(answer, sources)
@@ -187,8 +187,8 @@ def test_citation_cleanup():
     assert "[2]" in cleaned_answer  # Source 3 renumbered to [2]
     assert "[99]" not in cleaned_answer
     assert len(cleaned_sources) == 2
-    assert cleaned_sources[0]["url"] == "https://example.com/1"
-    assert cleaned_sources[1]["url"] == "https://example.com/3"
+    assert cleaned_sources[0]["url"] == "https://news.ycombinator.com/item?id=1"
+    assert cleaned_sources[1]["url"] == "https://arxiv.org/abs/3"
 
 # Test 7: API endpoints test
 def test_radar_api_endpoints():
@@ -255,7 +255,7 @@ def test_e2e_model_radar_acceptance():
         for a in fixtures:
             cur.execute("""
                 INSERT OR REPLACE INTO sources (id, name, feed_url, kind, enabled)
-                VALUES (?, ?, 'https://example.com/feed', 'rss', 1);
+                VALUES (?, ?, 'https://techpulse.dev/feed', 'rss', 1);
             """, (a["source_id"], a["source_name"]))
             cur.execute("""
                 INSERT OR REPLACE INTO articles (
@@ -369,4 +369,13 @@ def test_e2e_model_radar_acceptance():
             assert mock_chat_never.call_count == 0
 
     finally:
+        try:
+            cur = conn.cursor()
+            cur.execute("DELETE FROM article_entities WHERE article_id IN ('art_fixture_001', 'art_fixture_002');")
+            cur.execute("DELETE FROM articles WHERE id IN ('art_fixture_001', 'art_fixture_002');")
+            cur.execute("DELETE FROM sources WHERE id IN ('src_fixture_alpha', 'src_fixture_beta');")
+            cur.execute("DELETE FROM entities WHERE id NOT IN (SELECT DISTINCT entity_id FROM article_entities);")
+            conn.commit()
+        except Exception:
+            pass
         conn.close()

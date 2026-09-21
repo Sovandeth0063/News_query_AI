@@ -128,6 +128,11 @@ export async function loadRadarFeed() {
       items = res.items || [];
     }
 
+    const badge = document.getElementById('radarCountBadge');
+    if (badge) {
+      badge.textContent = items.length > 0 ? `${items.length} New` : 'Radar';
+    }
+
     if (!items || items.length === 0) {
       stream.innerHTML = `
         <div class="radar-empty" style="padding: 50px 20px; text-align: center; color: var(--text-muted); border: 1px dashed var(--border-color); border-radius: var(--radius-lg); margin-top: 16px;">

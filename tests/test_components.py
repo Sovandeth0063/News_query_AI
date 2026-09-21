@@ -58,7 +58,7 @@ def test_sqlite_fts_and_upsert():
     now_iso = datetime.now(timezone.utc).isoformat()
     test_article = {
         "id": "art_test_123",
-        "url": "https://example.com/test-ai-article",
+        "url": "https://techpulse.dev/quantum-deep-learning-breakthrough",
         "title": "Quantum Deep Learning Breakthrough",
         "summary": "Scientists merge quantum computing with deep learning neural networks.",
         "body": "Detailed content about quantum neural network training and convergence speeds.",
@@ -67,15 +67,20 @@ def test_sqlite_fts_and_upsert():
         "fetched_at_utc": now_iso,
         "score_cached": 1.2
     }
-    is_new, art_id = upsert_article(test_article)
-    assert is_new is True or art_id == "art_test_123"
+    try:
+        is_new, art_id = upsert_article(test_article)
+        assert is_new is True or art_id == "art_test_123"
 
-    # Test FTS5 query
-    cursor = conn.execute("SELECT title FROM articles_fts WHERE articles_fts MATCH 'title:Quantum';")
-    row = cursor.fetchone()
-    assert row is not None
-    assert "Quantum" in row[0]
-    conn.close()
+        # Test FTS5 query
+        cursor = conn.execute("SELECT title FROM articles_fts WHERE articles_fts MATCH 'title:Quantum';")
+        row = cursor.fetchone()
+        assert row is not None
+        assert "Quantum" in row[0]
+    finally:
+        with conn:
+            conn.execute("DELETE FROM articles WHERE id = 'art_test_123';")
+            conn.execute("DELETE FROM articles_fts WHERE id = 'art_test_123';")
+        conn.close()
 
 def test_fts_hyphenated_search():
     from app.storage.database import get_articles_for_feed, get_papers, sanitize_fts_query
@@ -86,7 +91,7 @@ def test_fts_hyphenated_search():
     now_iso = datetime.now(timezone.utc).isoformat()
     article = {
         "id": "art_test_hyphen_1",
-        "url": "https://example.com/test-hyphen-models",
+        "url": "https://techpulse.dev/benchmarking-claude-gpt-deepseek",
         "title": "Benchmarking Claude-3 vs GPT-4 and DeepSeek-R1 in C++",
         "summary": "Comprehensive benchmarks of GPT-4, Claude-3, and DeepSeek-R1 runtimes.",
         "body": "Detailed benchmark runtime test written in C++ for GPT-4 and Claude-3.",
@@ -95,16 +100,22 @@ def test_fts_hyphenated_search():
         "fetched_at_utc": now_iso,
         "score_cached": 2.0
     }
-    upsert_article(article)
+    try:
+        upsert_article(article)
 
-    # Test feed search with hyphenated queries - must not throw SQLite syntax errors
-    for query_str in ["GPT-4", "Claude-3", "DeepSeek-R1", "C++", "Claude-3 vs GPT-4"]:
-        sanitized = sanitize_fts_query(query_str)
-        assert sanitized != ""
-        feed_results = get_articles_for_feed(search=query_str)
-        assert isinstance(feed_results, list)
-        fts_results = search_fts(query_str)
-        assert isinstance(fts_results, list)
+        # Test feed search with hyphenated queries - must not throw SQLite syntax errors
+        for query_str in ["GPT-4", "Claude-3", "DeepSeek-R1", "C++", "Claude-3 vs GPT-4"]:
+            sanitized = sanitize_fts_query(query_str)
+            assert sanitized != ""
+            feed_results = get_articles_for_feed(search=query_str)
+            assert isinstance(feed_results, list)
+            fts_results = search_fts(query_str)
+            assert isinstance(fts_results, list)
+    finally:
+        with conn:
+            conn.execute("DELETE FROM articles WHERE id = 'art_test_hyphen_1';")
+            conn.execute("DELETE FROM articles_fts WHERE id = 'art_test_hyphen_1';")
+        conn.close()
 
 def test_fts_ai_ml_acronyms():
     from app.rag.retriever import search_fts, sanitize_search_tokens
@@ -119,10 +130,12 @@ def test_fts_ai_ml_acronyms():
     assert "is" not in [t.lower() for t in tokens_ml]
 
     # Insert test article for AI and ML
+    init_db()
+    conn = get_db_connection()
     now_iso = datetime.now(timezone.utc).isoformat()
     article = {
         "id": "art_test_acronym_1",
-        "url": "https://example.com/test-ai-ml-acronyms",
+        "url": "https://techpulse.dev/state-of-ai-and-ml-enterprise",
         "title": "State of AI and ML in Enterprise Production",
         "summary": "How AI and ML pipelines are being deployed at scale.",
         "body": "Engineering best practices for AI models and ML systems.",
@@ -131,14 +144,20 @@ def test_fts_ai_ml_acronyms():
         "fetched_at_utc": now_iso,
         "score_cached": 1.5
     }
-    upsert_article(article)
+    try:
+        upsert_article(article)
 
-    res_ai = search_fts("AI", limit=100)
-    assert len(res_ai) > 0, "Searching for 'AI' must return valid results rather than being stripped"
-    assert any(r["article_id"] == "art_test_acronym_1" for r in res_ai)
+        res_ai = search_fts("AI", limit=100)
+        assert len(res_ai) > 0, "Searching for 'AI' must return valid results rather than being stripped"
+        assert any(r["article_id"] == "art_test_acronym_1" for r in res_ai)
 
-    res_ml = search_fts("ML")
-    assert any(r["article_id"] == "art_test_acronym_1" for r in res_ml)
+        res_ml = search_fts("ML")
+        assert any(r["article_id"] == "art_test_acronym_1" for r in res_ml)
+    finally:
+        with conn:
+            conn.execute("DELETE FROM articles WHERE id = 'art_test_acronym_1';")
+            conn.execute("DELETE FROM articles_fts WHERE id = 'art_test_acronym_1';")
+        conn.close()
 
 def test_query_parser_word_boundary():
     from app.rag.query_parser import parse_query_filters
@@ -190,14 +209,14 @@ def test_upsert_article_updates_metadata():
     conn = get_db_connection()
     now_iso = datetime.now(timezone.utc).isoformat()
     with conn:
-        conn.execute("DELETE FROM articles WHERE url = 'https://example.com/test-metadata-article';")
+        conn.execute("DELETE FROM articles WHERE id = 'art_test_metadata_update';")
         conn.execute("INSERT OR IGNORE INTO story_clusters (id, size, first_seen_utc, last_seen_utc) VALUES ('cluster_abc123', 1, ?, ?);", (now_iso, now_iso))
     conn.close()
 
     art_id = "art_test_metadata_update"
     initial_art = {
         "id": art_id,
-        "url": "https://example.com/test-metadata-article",
+        "url": "https://techpulse.dev/test-metadata-article",
         "title": "Initial Title",
         "summary": "Initial summary",
         "body": "Initial body",
@@ -208,33 +227,41 @@ def test_upsert_article_updates_metadata():
         "score_cached": 0.5,
         "cluster_id": None
     }
-    is_new, _ = upsert_article(initial_art)
-    assert is_new is True
+    try:
+        is_new, _ = upsert_article(initial_art)
+        assert is_new is True
 
-    # Update with new category, cluster_id, score, and tags
-    updated_art = {
-        "id": art_id,
-        "url": "https://example.com/test-metadata-article",
-        "title": "Updated Title",
-        "summary": "Updated summary",
-        "body": "Updated body",
-        "category": "AI_LLM",
-        "tags": ["updated", "ai"],
-        "published_at_utc": now_iso,
-        "score_cached": 1.8,
-        "cluster_id": "cluster_abc123"
-    }
-    is_new_up, art_id_up = upsert_article(updated_art)
-    assert is_new_up is False
-    assert art_id_up == art_id
+        # Update with new category, cluster_id, score, and tags
+        updated_art = {
+            "id": art_id,
+            "url": "https://techpulse.dev/test-metadata-article",
+            "title": "Updated Title",
+            "summary": "Updated summary",
+            "body": "Updated body",
+            "category": "AI_LLM",
+            "tags": ["updated", "ai"],
+            "published_at_utc": now_iso,
+            "score_cached": 1.8,
+            "cluster_id": "cluster_abc123"
+        }
+        is_new_up, art_id_up = upsert_article(updated_art)
+        assert is_new_up is False
+        assert art_id_up == art_id
 
-    conn = get_db_connection()
-    row = conn.execute("SELECT title, category, cluster_id, score_cached FROM articles WHERE id = ?", (art_id,)).fetchone()
-    conn.close()
-    assert row["title"] == "Updated Title"
-    assert row["category"] == "AI_LLM"
-    assert row["cluster_id"] == "cluster_abc123"
-    assert abs(row["score_cached"] - 1.8) < 1e-4
+        conn = get_db_connection()
+        row = conn.execute("SELECT title, category, cluster_id, score_cached FROM articles WHERE id = ?", (art_id,)).fetchone()
+        conn.close()
+        assert row["title"] == "Updated Title"
+        assert row["category"] == "AI_LLM"
+        assert row["cluster_id"] == "cluster_abc123"
+        assert abs(row["score_cached"] - 1.8) < 1e-4
+    finally:
+        conn = get_db_connection()
+        with conn:
+            conn.execute("DELETE FROM articles WHERE id = ?", (art_id,))
+            conn.execute("DELETE FROM articles_fts WHERE id = ?", (art_id,))
+            conn.execute("DELETE FROM story_clusters WHERE id = 'cluster_abc123';")
+        conn.close()
 
 def test_purge_expired_articles():
     from app.storage.database import purge_expired_articles, set_read_state
@@ -244,45 +271,53 @@ def test_purge_expired_articles():
     old_iso = (datetime.now(timezone.utc) - timedelta(days=120)).isoformat()
     now_iso = datetime.now(timezone.utc).isoformat()
 
-    # Expired unbookmarked article
-    upsert_article({
-        "id": "art_expired_unbookmarked",
-        "url": "https://example.com/expired-unbookmarked",
-        "title": "Old news to purge",
-        "category": "TECH_GENERAL",
-        "published_at_utc": old_iso,
-        "fetched_at_utc": old_iso
-    })
+    try:
+        # Expired unbookmarked article
+        upsert_article({
+            "id": "art_expired_unbookmarked",
+            "url": "https://techpulse.dev/expired-unbookmarked",
+            "title": "Old news to purge",
+            "category": "TECH_GENERAL",
+            "published_at_utc": old_iso,
+            "fetched_at_utc": old_iso
+        })
 
-    # Expired bookmarked article
-    upsert_article({
-        "id": "art_expired_bookmarked",
-        "url": "https://example.com/expired-bookmarked",
-        "title": "Old news saved by user",
-        "category": "TECH_GENERAL",
-        "published_at_utc": old_iso,
-        "fetched_at_utc": old_iso
-    })
-    set_read_state("art_expired_bookmarked", is_bookmarked=True)
+        # Expired bookmarked article
+        upsert_article({
+            "id": "art_expired_bookmarked",
+            "url": "https://techpulse.dev/expired-bookmarked",
+            "title": "Old news saved by user",
+            "category": "TECH_GENERAL",
+            "published_at_utc": old_iso,
+            "fetched_at_utc": old_iso
+        })
+        set_read_state("art_expired_bookmarked", is_bookmarked=True)
 
-    # Fresh article
-    upsert_article({
-        "id": "art_fresh_keep",
-        "url": "https://example.com/fresh-article",
-        "title": "Fresh news to keep",
-        "category": "TECH_GENERAL",
-        "published_at_utc": now_iso,
-        "fetched_at_utc": now_iso
-    })
+        # Fresh article
+        upsert_article({
+            "id": "art_fresh_keep",
+            "url": "https://techpulse.dev/fresh-article",
+            "title": "Fresh news to keep",
+            "category": "TECH_GENERAL",
+            "published_at_utc": now_iso,
+            "fetched_at_utc": now_iso
+        })
 
-    purged = purge_expired_articles(retention_days=90)
-    assert purged >= 1
+        purged = purge_expired_articles(retention_days=90)
+        assert purged >= 1
 
-    # Verify unbookmarked expired is gone, bookmarked remains, fresh remains
-    conn = get_db_connection()
-    assert conn.execute("SELECT id FROM articles WHERE id = 'art_expired_unbookmarked'").fetchone() is None
-    assert conn.execute("SELECT id FROM articles WHERE id = 'art_expired_bookmarked'").fetchone() is not None
-    assert conn.execute("SELECT id FROM articles WHERE id = 'art_fresh_keep'").fetchone() is not None
+        # Verify unbookmarked expired is gone, bookmarked remains, fresh remains
+        conn = get_db_connection()
+        assert conn.execute("SELECT id FROM articles WHERE id = 'art_expired_unbookmarked'").fetchone() is None
+        assert conn.execute("SELECT id FROM articles WHERE id = 'art_expired_bookmarked'").fetchone() is not None
+        assert conn.execute("SELECT id FROM articles WHERE id = 'art_fresh_keep'").fetchone() is not None
+        conn.close()
+    finally:
+        conn = get_db_connection()
+        with conn:
+            conn.execute("DELETE FROM articles WHERE id IN ('art_expired_unbookmarked', 'art_expired_bookmarked', 'art_fresh_keep');")
+            conn.execute("DELETE FROM articles_fts WHERE id IN ('art_expired_unbookmarked', 'art_expired_bookmarked', 'art_fresh_keep');")
+        conn.close()
     conn.close()
 
 def test_rrf_hybrid_fusion(monkeypatch):
@@ -367,7 +402,7 @@ def test_takeaway_and_sidebar_api():
     now_iso = datetime.now(timezone.utc).isoformat()
     test_article = {
         "id": "art_cloud_test_1",
-        "url": "https://example-test-infra.org/cloud-data-pipeline",
+        "url": "https://techpulse.dev/cloud-data-pipeline",
         "title": "Scaling Distributed Data Pipelines with Apache Spark and Kubernetes",
         "summary": "Best practices for deploying fault-tolerant MLOps pipelines.",
         "takeaway": "Kubernetes orchestration cuts Spark MLOps pipeline latency by 40%.",
@@ -378,12 +413,19 @@ def test_takeaway_and_sidebar_api():
         "score_cached": 1.5,
         "tags": ["Data Engineering", "Cloud", "Spark"]
     }
-    upsert_article(test_article)
+    try:
+        upsert_article(test_article)
 
-    feed_res = client.get("/api/feed?category=DATA_ENG_CLOUD")
-    assert feed_res.status_code == 200
-    articles = feed_res.json()["articles"]
-    assert any(a["id"] == "art_cloud_test_1" for a in articles)
-    matched = next(a for a in articles if a["id"] == "art_cloud_test_1")
-    assert matched["takeaway"] == "Kubernetes orchestration cuts Spark MLOps pipeline latency by 40%."
+        feed_res = client.get("/api/feed?category=DATA_ENG_CLOUD")
+        assert feed_res.status_code == 200
+        articles = feed_res.json()["articles"]
+        assert any(a["id"] == "art_cloud_test_1" for a in articles)
+        matched = next(a for a in articles if a["id"] == "art_cloud_test_1")
+        assert matched["takeaway"] == "Kubernetes orchestration cuts Spark MLOps pipeline latency by 40%."
+    finally:
+        conn = get_db_connection()
+        with conn:
+            conn.execute("DELETE FROM articles WHERE id = 'art_cloud_test_1';")
+            conn.execute("DELETE FROM articles_fts WHERE id = 'art_cloud_test_1';")
+        conn.close()
 
