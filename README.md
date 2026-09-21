@@ -1,4 +1,4 @@
-# ⚡ NewsQuery: AI & Data Science News Intelligence Engine
+# ⚡ NewsQuery: AI & Data Science News Dashboard
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-green.svg)](https://fastapi.tiangolo.com/)
@@ -7,90 +7,89 @@
 [![Database](https://img.shields.io/badge/Storage-SQLite%20(FTS5)%20%2B%20ChromaDB-blueviolet.svg)](https://www.sqlite.org/)
 [![Tests](https://img.shields.io/badge/Tests-24%20Passing-brightgreen.svg)](https://docs.pytest.org/)
 
-An automated, full-stack intelligence engine that continuously ingests, cleans, clusters, ranks, and analyzes technical news, academic preprints, and developer discussions across **Artificial Intelligence, Machine Learning, and Data Science**.
+An automated tool that collects, groups, ranks, and analyzes news, research papers, and discussions across **Artificial Intelligence, Machine Learning, and Data Science**.
 
-Equipped with an **Entity-Powered Model Radar**, **Citation-Backed Hybrid RAG Analyst**, **Executive Daily Briefings**, and a **Glassmorphism Web Dashboard** with offline-first vendored assets.
+Includes a **Model Radar** to track new AI model releases, an **AI Chat Assistant** with source links, **Daily Briefings**, and a simple web dashboard.
 
 ---
 
-## 🌟 Key Features & Capabilities
+## 🌟 Key Features
 
-### 📡 1. Model Radar & Entity Intelligence
-- **Automated Event Detection**: Classifies stories into discrete event types (`model_release`, `model_update`, `research_paper`, `tool_release`, `benchmark_result`).
-- **Entity Knowledge Graph**: Automatically extracts entities (models, organizations, creators, benchmarks, hardware) and resolves them into canonical representations with alias mapping.
-- **Emerging Entity Spikes**: Detects velocity spikes when newly introduced entities gain multi-source coverage against historical baselines.
-- **Entity Chronological Timelines**: Inspect complete release histories, benchmarks, and updates for any model or organization (e.g. tracking iterations across versions).
+### 📡 1. Model Radar & Release Tracker
+- **Event Detection**: Identifies model releases, model updates, research papers, and benchmark results.
+- **Entity Tracking**: Extracts model and company names, and links aliases together.
+- **Trending Models**: Highlights new models that quickly get covered across multiple sources.
+- **Release Timelines**: View the chronological history of updates and benchmarks for any model or organization.
 
-### 🔄 2. Multi-Source Ingestion Pipeline
-- **Diverse Ingestion Adapters**:
-  - 📰 **RSS/Atom**: Industry publishers, tech press, and research labs (VentureBeat, Hugging Face Blog, OpenAI, MIT Tech Review, TechCrunch, Ars Technica).
-  - 🔬 **Academic Preprints (arXiv)**: Direct API integration querying `cs.AI`, `cs.LG`, and `cs.CL`.
-  - 💬 **Hacker News (Algolia API)**: High-signal community submissions tracking model launches with points thresholds.
-  - 🤖 **Reddit**: Filtered community intelligence from subreddits like `r/LocalLLaMA`.
-  - 🌐 **Google News Aggregators**: Multi-outlet tracking of breaking model releases and funding rounds.
-- **Automated Scheduler**: APScheduler background daemon running every 24 hours (configurable) or triggered on-demand via UI/API.
-- **Deduplication & Full-Text Crawling**: URL canonicalization (stripping tracking parameters), SHA-256 content hashing, and Trafilatura-powered HTML article extraction.
+### 🔄 2. Multi-Source News Ingestion
+- **Supported Sources**:
+  - 📰 **RSS Feeds**: Tech blogs and research labs (VentureBeat, Hugging Face, OpenAI, MIT Tech Review, TechCrunch, Ars Technica).
+  - 🔬 **Research Papers (arXiv)**: Preprints from `cs.AI`, `cs.LG`, and `cs.CL`.
+  - 💬 **Hacker News**: Community posts tracking AI model launches.
+  - 🤖 **Reddit**: Discussions from subreddits like `r/LocalLLaMA`.
+  - 🌐 **Google News**: News coverage of major model releases and updates.
+- **Background Scheduler**: Runs every 24 hours automatically, or on demand via the "Sync Now" button.
+- **Deduplication**: Cleans URLs, removes duplicate articles, and extracts the full article text.
 
-### 📑 3. Story Clustering & Dynamic Decay Ranking
-- **Dense Cosine Clustering**: SentenceTransformer embeddings (`all-MiniLM-L6-v2`) group articles reporting on the same event into story clusters.
-- **Dynamic Half-Life Exponential Ranking**:
+### 📑 3. Story Grouping & Ranking
+- **Group Related Stories**: Uses text embeddings (`all-MiniLM-L6-v2`) to group articles about the same event.
+- **Freshness & Priority Ranking**:
   $$\text{Score} = \text{Category Weight} \times \text{Source Authority} \times \text{Coverage Boost} \times 2^{-\frac{\text{age (hours)}}{36}}$$
-  Articles stay relevant for breaking news while smoothly decaying over a 36-hour half-life.
+  Ranks breaking news higher and gradually decays scores over a 36-hour half-life.
 
-### 💬 4. Citation-Backed Hybrid RAG Analyst
-- **Hybrid Retrieval (RRF)**: Combines dense vector search (ChromaDB cosine similarity) with sparse keyword search (SQLite FTS5 BM25) using Reciprocal Rank Fusion ($k=60$).
-- **Anti-Hallucination Guardrails**: Queries are routed through intent classifiers; answers include inline citations (`[1]`, `[2]`) linked to verified sources. Citations are strictly validated, stripping ungrounded numbers or returning a clean fallback when no evidence is found.
-- **Tiered Gemini Engine**: Fast routing via `gemini-3.5-flash-lite`, with automatic escalation to `gemini-3.5-flash` for multi-source comparative queries or syntheses.
+### 💬 4. AI Chat Assistant
+- **Hybrid Search**: Combines keyword search (SQLite FTS5) with vector search (ChromaDB) to find relevant context.
+- **Answers with Sources**: Answers questions with clickable citation links (`[1]`, `[2]`) back to original articles.
+- **Fast & Accurate**: Uses Gemini Flash for quick answers, switching to larger models for complex questions.
 
-### ☕ 5. Executive Daily Briefing
-- One-click daily briefing synthesizing the day's top technical breakthroughs into structured Markdown with takeaway bullet points.
-- Date picker to review past briefings, with built-in quota confirmation prompts before regeneration.
+### ☕ 5. Daily Briefing
+- Generates a quick summary of the top stories and key takeaways for the day.
+- Includes a date picker to read past briefings.
 
-### 🎨 6. Modern Glassmorphism Dashboard
-- **5 Dedicated Tabs**: Live Feed, Model Radar, arXiv Papers, Today's Digest, Ask AI Analyst.
-- **Interactive Reader Modal**: Displays extracted takeaways, tags, summary, sibling cluster coverage, and full article text.
-- **Dynamic Sidebar**: Live top 3 stories today, active category distribution pills, and briefing snippet.
-- **Zero External CDNs**: Vendored `marked.min.js` and `purify.min.js` for zero tracking, fast loads, and offline support.
-- **Keyboard Shortcuts**: `/` to search, `T` to toggle dark/light theme, `D` to toggle compact density, `ESC` to dismiss modals, `← / →` to cycle tabs, and `?` for help.
+### 🎨 6. Web Dashboard
+- **5 Tabs**: Live Feed, Model Radar, arXiv Papers, Today's Digest, Ask AI.
+- **Article Reader**: View AI takeaways, summary, related sources, and full article text in a popup modal.
+- **Sidebar**: Quick view of top stories today, active topics, and latest briefing preview.
+- **Simple Controls**: Dark/light theme toggle, compact view toggle, and keyboard shortcuts (`/`, `ESC`, `←/→`, `T`, `D`, `?`).
 
 ---
 
 ## 🔄 System Architecture
 
 ```
-                      INGESTION ADAPTERS
+                       NEWS SOURCES
  ┌─────────────────────────────────────────────────────────────┐
- │ RSS / Atom Feeds │ arXiv API │ Hacker News │ Reddit │ GNews │
+ │ RSS Feeds │ arXiv Preprints │ Hacker News │ Reddit │ GNews  │
  └──────────────────────────────┬──────────────────────────────┘
                                 │
                                 ▼
  ┌─────────────────────────────────────────────────────────────┐
- │         Normalizer, Deduplication & HTML Extractor          │
- │         - Canonicalize URL & SHA-256 Content Hash           │
- │         - HTML Entity Purge & Trafilatura Full-Text         │
+ │               Clean, Deduplicate & Extract                  │
+ │    - Clean URLs and remove duplicates via content hash      │
+ │    - Extract full article text using Trafilatura            │
  └──────────────────────────────┬──────────────────────────────┘
                                 │
                                 ▼
  ┌─────────────────────────────────────────────────────────────┐
- │           AI Enrichment & Processing Pipeline               │
- │  - Local SentenceTransformers (all-MiniLM-L6-v2)            │
- │  - Cosine Distance Story Clustering & Half-Life Ranking     │
- │  - Gemini Entity Extraction, Event Classification & Radar   │
+ │              Group, Rank & Extract Entities                 │
+ │    - Group related stories using local text embeddings      │
+ │    - Rank articles by source authority & 36h recency decay  │
+ │    - Detect model releases and extract entities with Gemini │
  └──────────────────────────────┬──────────────────────────────┘
                                 │
                                 ▼
  ┌─────────────────────────────────────────────────────────────┐
- │                     Dual-Storage Layer                      │
- │   - SQLite: Metadata, Clusters, Entities Graph & FTS5 BM25  │
- │   - ChromaDB: Dense 384-d Chunk Vector Embeddings           │
+ │                     Storage Layer                           │
+ │    - SQLite: Metadata, story clusters, entities & FTS5 BM25 │
+ │    - ChromaDB: Vector embeddings for search                 │
  └──────────────────────────────┬──────────────────────────────┘
                                 │
                                 ▼
  ┌─────────────────────────────────────────────────────────────┐
- │               FastAPI REST & RAG Serving Layer              │
- │  - Hybrid Search (RRF: FTS5 BM25 + Dense ChromaDB)          │
- │  - Tiered Gemini RAG Generator with Strict Citation Checker │
- │  - Responsive Glassmorphism Web App (Zero External CDNs)    │
+ │                 FastAPI Backend & Web UI                    │
+ │    - Hybrid retrieval (Keyword + Vector search)             │
+ │    - Grounded AI Chat Assistant with clickable source links │
+ │    - Clean web dashboard (no external CDNs needed)          │
  └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -136,7 +135,7 @@ Key environment settings in `.env`:
 # Required for AI summaries, classification, and RAG chat
 GEMINI_API_KEY=your_gemini_api_key_here
 
-# Tiered Models (Gemini 3+)
+# Models (Gemini 3+)
 MODEL_CLASSIFIER=gemini-3.5-flash-lite
 MODEL_DIGEST=gemini-3.5-flash
 MODEL_CHAT_PRIMARY=gemini-3.5-flash-lite
@@ -162,7 +161,7 @@ EMBEDDING_MODEL=all-MiniLM-L6-v2
 python run.py
 ```
 - Open **[http://127.0.0.1:8000](http://127.0.0.1:8000)** in your browser.
-- Interactive OpenAPI documentation is available at **[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)**.
+- Interactive API documentation is available at **[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)**.
 
 ---
 
