@@ -1,6 +1,6 @@
 # ⚡ AI & Data Science News Intelligence Engine
 
-An automated, production-grade intelligence platform that continuously ingests, cleans, clusters, ranks, and analyzes technical news, academic preprints, and developer community discussions across Artificial Intelligence, Machine Learning, and Data Science.
+An automated, AI platform that continuously ingests, cleans, clusters, ranks, and analyzes technical news, academic preprints, and developer community discussions across Artificial Intelligence, Machine Learning, and Data Science.
 
 Equipped with a **Hybrid RAG (Retrieval-Augmented Generation)** assistant, **Model Radar** for emerging AI models and benchmarks, **Daily Executive Briefing synthesis**, and an interactive web interface.
 
