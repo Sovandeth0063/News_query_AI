@@ -379,7 +379,35 @@
       </div>
       <div class="modal-body">
         <h2 id="readerTitle" class="reader-title">Title</h2>
-        <p id="readerSummary" class="reader-summary-lead">Summary snippet</p>
+
+        <!-- Key Takeaway Highlight Box -->
+        <div id="readerTakeawayContainer" class="reader-takeaway-container">
+          <div class="reader-takeaway-header">
+            <span class="takeaway-badge-icon">💡</span>
+            <span class="takeaway-badge-label">Key Takeaway</span>
+          </div>
+          <p id="readerTakeaway" class="reader-takeaway-content"></p>
+        </div>
+
+        <!-- Article Summary Section -->
+        <div class="reader-summary-section">
+          <h4 class="reader-section-heading">
+            <span class="reader-heading-icon">📰</span>
+            <span>Article Summary</span>
+          </h4>
+          <p id="readerSummary" class="reader-summary-lead">Summary snippet</p>
+        </div>
+
+        <!-- Full Extracted Article Text (Collapsible) -->
+        <div id="readerFullBodyContainer" class="reader-full-body-container" style="display: none;">
+          <details id="readerFullBodyDetails" class="reader-full-body-details">
+            <summary class="reader-full-body-toggle">
+              <span class="toggle-icon">📄</span>
+              <span id="readerFullBodyToggleText">Read Full Ingested Text</span>
+            </summary>
+            <div id="readerFullBodyText" class="reader-full-body-text"></div>
+          </details>
+        </div>
         
         <div id="readerTags" class="reader-tags-box"></div>
 

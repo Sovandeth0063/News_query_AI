@@ -68,7 +68,12 @@ export async function openArticleModal(article) {
   const sourceEl = document.getElementById('readerSource');
   const dateEl = document.getElementById('readerDate');
   const categoryEl = document.getElementById('readerCategory');
+  const takeawayContainer = document.getElementById('readerTakeawayContainer');
+  const takeawayEl = document.getElementById('readerTakeaway');
   const summaryEl = document.getElementById('readerSummary');
+  const fullBodyContainer = document.getElementById('readerFullBodyContainer');
+  const fullBodyText = document.getElementById('readerFullBodyText');
+  const fullBodyToggleText = document.getElementById('readerFullBodyToggleText');
   const tagsEl = document.getElementById('readerTags');
   const siblingsBox = document.getElementById('readerSiblingsBox');
   const siblingsList = document.getElementById('readerSiblingsList');
@@ -79,7 +84,24 @@ export async function openArticleModal(article) {
   sourceEl.textContent = currentArticle.source_name || 'Source';
   dateEl.textContent = formatTimeAgo(currentArticle.published_at_utc);
   categoryEl.textContent = currentArticle.category || 'TECH';
+
+  // Populate Key Takeaway immediately if present
+  const initialTakeaway = (currentArticle.takeaway || '').trim();
+  if (takeawayContainer && takeawayEl) {
+    if (initialTakeaway) {
+      takeawayEl.textContent = initialTakeaway;
+      takeawayContainer.style.display = 'block';
+    } else {
+      takeawayContainer.style.display = 'none';
+    }
+  }
+
+  // Populate Summary
   summaryEl.textContent = currentArticle.summary || 'No summary preview available.';
+
+  // Reset full body container
+  if (fullBodyContainer) fullBodyContainer.style.display = 'none';
+  if (fullBodyText) fullBodyText.textContent = '';
 
   // External URL
   if (isValidHttpUrl(currentArticle.url)) {
@@ -116,9 +138,49 @@ export async function openArticleModal(article) {
     }
   }
 
-  // Fetch sibling coverage if clustered
+  // Fetch full details (full body, updated takeaway, and cluster siblings)
   try {
     const detail = await api.getArticleDetail(currentArticle.id);
+    if (detail && detail.article) {
+      const art = detail.article;
+
+      // Update Key Takeaway if received from database
+      const liveTakeaway = (art.takeaway || currentArticle.takeaway || '').trim();
+      if (takeawayContainer && takeawayEl) {
+        if (liveTakeaway) {
+          takeawayEl.textContent = liveTakeaway;
+          takeawayContainer.style.display = 'block';
+        } else if (art.summary) {
+          // Generate fallback takeaway from first sentence of summary
+          const firstSentence = art.summary.split(/\.\s+/)[0].trim();
+          takeawayEl.textContent = firstSentence.endsWith('.') ? firstSentence : firstSentence + '.';
+          takeawayContainer.style.display = 'block';
+        }
+      }
+
+      // Update Summary if returned
+      if (art.summary) {
+        summaryEl.textContent = art.summary;
+      }
+
+      // Full ingested body text (collapsible toggle)
+      if (art.body && art.body.trim() && art.body.length > (art.summary || '').length + 60) {
+        if (fullBodyContainer && fullBodyText) {
+          fullBodyContainer.style.display = 'block';
+          fullBodyText.textContent = art.body;
+          const words = art.body.trim().split(/\s+/).length;
+          if (fullBodyToggleText) {
+            fullBodyToggleText.textContent = `Read Full Extracted Article (${words} words)`;
+          }
+        }
+      }
+
+      // Tags
+      if (Array.isArray(art.tags) && art.tags.length > 0) {
+        tagsEl.innerHTML = art.tags.map(t => `<span class="reader-tag">#${escapeHtml(t)}</span>`).join('');
+      }
+    }
+
     if (detail && detail.siblings && detail.siblings.length > 0) {
       siblingsBox.style.display = 'block';
       siblingsList.innerHTML = detail.siblings.map(s => {
@@ -134,7 +196,7 @@ export async function openArticleModal(article) {
       }).join('');
     }
   } catch (e) {
-    // Non-critical: siblings failed to load
+    // Non-critical: siblings or full body failed to load
   }
 }
 
