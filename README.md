@@ -78,8 +78,11 @@ Ingestion Sources (RSS, arXiv, Reddit, Hacker News, Google News)
 ```
 
 ### Dynamic Ranking Formula
-Articles are ranked by:
-$$\text{Score} = \text{Category Weight} \times \text{Recency Decay (36h half-life)} \times \text{Source Authority} \times \text{Coverage Boost}$$
+Articles are ranked dynamically using a 36-hour exponential half-life:
+
+> **Score** = **Category Weight** × **Recency Decay** × **Source Authority** × **Coverage Boost**
+>
+> *where* **Recency Decay** = `2^(-age / 36)` (score halves every 36 hours)
 
 ---
 
